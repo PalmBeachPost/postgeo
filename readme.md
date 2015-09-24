@@ -22,6 +22,9 @@ Simply run it like this: postgeo.py myfile.csv.
 
 It'll spit back a myfile-geo.csv.
 
+To reduce overhead, sort your CSV by the last column, the to-be-geocoded column. It'll look up those addresses just one time, and then drop the correct data in place for subsequent rows that have the same location listed.
+
+
 
 Command-line jittering or clustering
 ------------------------------------
