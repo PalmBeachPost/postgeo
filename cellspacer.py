@@ -67,6 +67,7 @@ def main():
 			with open(inputfilename, 'rb') as inputfilehandle:
 				rows = csv.reader(inputfilehandle)
 				headers=rows.next()
+				headers.append("RowsHere")
 				headers.append("latlongspaced")
 				put.writerow(headers)
 				for row in rows:
@@ -83,10 +84,11 @@ def main():
 					else:
 						areacount=masterdict[latlong][0]
 						bearing=value*360/areacount
-						destination = VincentyDistance(meters=100).destination(latlong, bearing)
+						destination = VincentyDistance(meters=800).destination(latlong, bearing)
 						latlongspaced=str(destination.latitude) + ", " + str(destination.longitude)
 					if verbose==1:
 						print "Latlong:" + "\t" + latlong + "\t" + "Area count:" + "\t" + str(areacount) + "\t" + "Index count:" + "\t" + str(value) + "\t" + "Spaced:" + "\t" + latlongspaced + "\t" + "Bearing" + "\t" + str(bearing)
+					row.append(str(areacount))
 					row.append(latlongspaced)
 					put.writerow(row)
 		if verbose==1:
