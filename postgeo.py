@@ -29,7 +29,7 @@ lastlatlong = "-77.036482, 38.897667"
 
 try:
     inputfilename = sys.argv[1]
-    outputfilename = inputfilename[:inputfilename.rfind(".")] + "-geo" +inputfilename[inputfilename.rfind("."):]
+    outputfilename = inputfilename[:inputfilename.rfind(".")] + "-geo" + inputfilename[inputfilename.rfind("."):]
     with open(outputfilename, 'w') as outputfile:
         put = csv.writer(outputfile)
         with open(inputfilename, 'r') as inputfilehandle:
