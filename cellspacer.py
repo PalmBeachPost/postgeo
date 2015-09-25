@@ -10,6 +10,7 @@ This may use a lot of memory on large datasets, so you might want it to work off
 """
 
 from __future__ import print_function
+import argparse
 import csv
 import sys
 
@@ -40,68 +41,70 @@ def get_spot(latlong, value):
 
 
 def main():
-    try:
-        inputfilename = sys.argv[1]
-        outputfilename = inputfilename[:inputfilename.rfind(".")] + "-jitter" +inputfilename[inputfilename.rfind("."):]
-        with open(inputfilename, 'r') as inputfilehandle:
-            rows = csv.reader(inputfilehandle)
-            headers = next(rows)
-            for row in rows:
-                latlong = row[-1]
+    inputfilename = args.filename
+    outputfilename = inputfilename[:inputfilename.rfind(".")] + "-jitter" + inputfilename[inputfilename.rfind("."):]
+    with open(inputfilename, 'r') as inputfilehandle:
+        rows = csv.reader(inputfilehandle)
+        headers = next(rows)
+        for row in rows:
+            latlong = row[-1]
         # We're only grabbing latlong from last field
-                set_spot(latlong)
+            set_spot(latlong)
         # masterdict should now have all latlongs, and their counts
         # and inputfilehandle should now be closed.
         # Let's now set up our spot dictionary:
 
-        for key in masterdict:
-            if masterdict[key][0] == 1:
-                masterdict[key][1] = flagonsolo
-            else:
-                masterdict[key][1] = 0
+    for key in masterdict:
+        if masterdict[key][0] == 1:
+            masterdict[key][1] = flagonsolo
+        else:
+            masterdict[key][1] = 0
 ## We should be ready to start processing. Our masterdict holds a list keyed to each unique latlong in our
 ## source CSV. [0] holds how many values are at that index. [1] holds an index to which one of those things
 ## we're processing, so we know where to jigger it.
 ## flagonsolo gives us a value that says, "Only one point at this latlong. Don't mess with it."
 
-        with open(outputfilename, 'w') as outputfile:
-            put = csv.writer(outputfile)
-            with open(inputfilename, 'r') as inputfilehandle:
-                rows = csv.reader(inputfilehandle)
-                headers = next(rows)
-                headers.append("RowsHere")
-                headers.append("latlongspaced")
-                put.writerow(headers)
-                for row in rows:
-                    latlong = row[-1]
-                    value = -700
-#					get_spot(latlong, value)
-                    Bud, Schlitz = get_spot(latlong, value)
-#					print "Tequila" + str(value)
-#					print "Schlitz " + str(Schlitz)
-                    value = Schlitz
-                    if value == flagonsolo:
-                        latlongspaced = latlong
-                        areacount = 1
-                    else:
-                        areacount = masterdict[latlong][0]
-                        bearing = value*360 / areacount
-                        destination = VincentyDistance(meters=100).destination(latlong, bearing)
-                        latlongspaced = str(destination.latitude) + ", " + str(destination.longitude)
-                    if verbose == 1:
-                        print("Latlong:" + "\t" + latlong + "\t" + "Area count:" + "\t" + str(areacount) + "\t" + "Index count:" + "\t" + str(value) + "\t" + "Spaced:" + "\t" + latlongspaced + "\t" + "Bearing" + "\t" + str(bearing))
-                    row.append(str(areacount))
-                    row.append(latlongspaced)
-                    put.writerow(row)
-        if verbose == 1:
-            linecount = 0
-            for key in masterdict:
-                linecount = linecount + masterdict[key][0]
-            print("Processed " + str(linecount) + " rows at " + str(len(masterdict)) + " locations.")
-    except IndexError:
-        print('Run this script with the CSV filename you want to scatter, like "cellspacer.py mydata.csv"')
-        print('The final column must contain the geocoded field, e.g, "-80.213, 40.4742")')
+    with open(outputfilename, 'w') as outputfile:
+        put = csv.writer(outputfile)
+        with open(inputfilename, 'r') as inputfilehandle:
+            rows = csv.reader(inputfilehandle)
+            headers = next(rows)
+            headers.append("RowsHere")
+            headers.append("latlongspaced")
+            put.writerow(headers)
+            for row in rows:
+                latlong = row[-1]
+                value = -700
+#				get_spot(latlong, value)
+                Bud, Schlitz = get_spot(latlong, value)
+#				print "Tequila" + str(value)
+#				print "Schlitz " + str(Schlitz)
+                value = Schlitz
+                if value == flagonsolo:
+                    latlongspaced = latlong
+                    areacount = 1
+                else:
+                    areacount = masterdict[latlong][0]
+                    bearing = value*360 / areacount
+                    destination = VincentyDistance(meters=100).destination(latlong, bearing)
+                    latlongspaced = str(destination.latitude) + ", " + str(destination.longitude)
+                if verbose == 1:
+                    print("Latlong:" + "\t" + latlong + "\t" + "Area count:" + "\t" + str(areacount) + "\t" + "Index count:" + "\t" + str(value) + "\t" + "Spaced:" + "\t" + latlongspaced + "\t" + "Bearing" + "\t" + str(bearing))
+                row.append(str(areacount))
+                row.append(latlongspaced)
+                put.writerow(row)
+    if verbose == 1:
+        linecount = 0
+        for key in masterdict:
+            linecount = linecount + masterdict[key][0]
+        print("Processed " + str(linecount) + " rows at " + str(len(masterdict)) + " locations.")
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description="Lat-longs to scatter")
+    parser.add_argument('filename', metavar='filename', help='CSV file containing Lat-longs to scatter')
+    args = parser.parse_args()
+    if args.filename.lower().endswith('.csv'):
+        main()
+    else:
+        print("File must be of type CSV and end with .csv extension")
