@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+This thing assumes you're throwing it at a CSV that ends in .csv or .CSV or similar.
+Your full address field -- "1600 Pennsylvania Ave. NW, Washington, D.C., USA" -- MUST be the final column.
+"""
 
 from __future__ import print_function
 import sys
@@ -12,8 +16,7 @@ import creds
 GoogleAPIkey = creds.access['GoogleAPIkey']
 
 geolocator = GoogleV3(api_key=GoogleAPIkey, timeout=10)
-#### This thing assumes you're throwing it at a CSV that ends in .csv or .CSV or similar.
-#### Your full address field -- "1600 Pennsylvania Ave. NW, Washington, D.C., USA" -- MUST be the final column.
+
 
 
 
