@@ -86,6 +86,7 @@ def main():
                 if value == flagonsolo:
                     latlongspaced = latlong
                     areacount = 1
+                    bearing = "N/A"
                 else:
                     areacount = masterdict[latlong][0]
                     bearing = (value * 360 / areacount)
