@@ -18,7 +18,7 @@ from geopy.distance import VincentyDistance
 
 masterdict = {}
 flagonsolo = 987654321
-verbose = 1
+
 # verbose = 1				## Comment this line out if you don't want feedback.
 
 
@@ -41,7 +41,7 @@ def get_spot(latlong, value):
 # Let's peel the latest index count off, and increment by 1, unless this is the only spot at the location.
 
 
-def main():
+def main(verbose=0):
     inputfilename = args.filename
     outputfilename = inputfilename[:inputfilename.rfind(".")] + "-jitter" + inputfilename[inputfilename.rfind("."):]
     with open(inputfilename, 'r') as inputfilehandle:
@@ -107,8 +107,12 @@ def main():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Lat-longs to scatter")
     parser.add_argument('filename', metavar='filename', help='CSV file containing Lat-longs to scatter')
+    parser.add_argument("-v", help="turn on verbose output", action="store_true")
     args = parser.parse_args()
     if args.filename.lower().endswith('.csv'):
-        main()
+        if args.v:
+            main(verbose=1)
+        else:
+            main()
     else:
         print("File must be of type CSV and end with .csv extension")
