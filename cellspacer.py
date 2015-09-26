@@ -18,8 +18,8 @@ from geopy.distance import VincentyDistance
 
 masterdict = {}
 flagonsolo = 987654321
-verbose = 0
-verbose = 1				## Comment this line out if you don't want feedback.
+verbose = 1
+# verbose = 1				## Comment this line out if you don't want feedback.
 
 
 def set_spot(latlong):
@@ -27,6 +27,7 @@ def set_spot(latlong):
         masterdict[latlong][0] += 1
     else:
         masterdict[latlong] = [1,-1]
+
 # So if we have a value, we know this spot already and we should add to the count.
 # If we don't have a value, we need to create one, set to the 1.
 
@@ -59,6 +60,7 @@ def main():
             masterdict[key][1] = flagonsolo
         else:
             masterdict[key][1] = 0
+
 ## We should be ready to start processing. Our masterdict holds a list keyed to each unique latlong in our
 ## source CSV. [0] holds how many values are at that index. [1] holds an index to which one of those things
 ## we're processing, so we know where to jigger it.
@@ -77,6 +79,7 @@ def main():
                 value = -700
 #				get_spot(latlong, value)
                 Bud, Schlitz = get_spot(latlong, value)
+
 #				print "Tequila" + str(value)
 #				print "Schlitz " + str(Schlitz)
                 value = Schlitz
@@ -85,11 +88,11 @@ def main():
                     areacount = 1
                 else:
                     areacount = masterdict[latlong][0]
-                    bearing = value*360 / areacount
+                    bearing = (value * 360 / areacount)
                     destination = VincentyDistance(meters=100).destination(latlong, bearing)
                     latlongspaced = str(destination.latitude) + ", " + str(destination.longitude)
                 if verbose == 1:
-                    print("Latlong:" + "\t" + latlong + "\t" + "Area count:" + "\t" + str(areacount) + "\t" + "Index count:" + "\t" + str(value) + "\t" + "Spaced:" + "\t" + latlongspaced + "\t" + "Bearing" + "\t" + str(bearing))
+                    print("Latlong:" + "\t" + latlong + "\t" + "Area count:" + "\t" + str(areacount) + "\t" + "Index count:" + "\t" + str(value) + "\t" + "Spaced:" + "\t" + latlongspaced + "\t" + "Bearing " + "\t" + str(bearing))
                 row.append(str(areacount))
                 row.append(latlongspaced)
                 put.writerow(row)
