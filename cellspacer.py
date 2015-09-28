@@ -19,8 +19,8 @@ from geopy.distance import VincentyDistance
 masterdict = {}
 flagonsolo = 987654321
 
-output_string = "Latlong: {:<25} Area count: {} Index count: {:>9} Spaced: {:<30} Bearing {}"
-total_string = "Processed {} rows at {} locations"
+# verbose = 1				## Comment this line out if you don't want feedback.
+
 
 def set_spot(latlong):
     if latlong in masterdict.keys():
@@ -67,7 +67,7 @@ def main(verbose=0):
 ## flagonsolo gives us a value that says, "Only one point at this latlong. Don't mess with it."
 
     with open(outputfilename, 'w') as outputfile:
-        put = csv.writer(outputfile, lineterminator='\n')
+        put = csv.writer(outputfile)
         with open(inputfilename, 'r') as inputfilehandle:
             rows = csv.reader(inputfilehandle)
             headers = next(rows)
@@ -87,8 +87,7 @@ def main(verbose=0):
                     destination = VincentyDistance(meters=100).destination(latlong, bearing)
                     latlongspaced = str(destination.latitude) + ", " + str(destination.longitude)
                 if verbose == 1:
-                    print(output_string.format(latlong, areacount, value, latlongspaced, bearing))
-
+                    print("Latlong:" + "\t" + latlong + "\t" + "Area count:" + "\t" + str(areacount) + "\t" + "Index count:" + "\t" + str(value) + "\t" + "Spaced:" + "\t" + latlongspaced + "\t" + "Bearing " + "\t" + str(bearing))
                 row.append(str(areacount))
                 row.append(latlongspaced)
                 put.writerow(row)
@@ -96,12 +95,13 @@ def main(verbose=0):
         linecount = 0
         for key in masterdict:
             linecount = linecount + masterdict[key][0]
-        print(total_string.format(linecount, len(masterdict)))
+        print("Processed " + str(linecount) + " rows at " + str(len(masterdict)) + " locations.")
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Lat-longs to scatter")
     parser.add_argument('filename', metavar='filename', help='CSV file containing Lat-longs to scatter')
-    parser.add_argument("-v", help="Turn on verbose output", action="store_true")
+    parser.add_argument("-v", help="turn on verbose output", action="store_true")
     args = parser.parse_args()
     if args.filename.lower().endswith('.csv'):
         if args.v:
