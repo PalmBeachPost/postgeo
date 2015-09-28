@@ -18,7 +18,7 @@ from geopy.distance import VincentyDistance
 
 masterdict = {}
 flagonsolo = 987654321
-verbose = 1
+
 # verbose = 1				## Comment this line out if you don't want feedback.
 
 
@@ -31,17 +31,17 @@ def set_spot(latlong):
 # So if we have a value, we know this spot already and we should add to the count.
 # If we don't have a value, we need to create one, set to the 1.
 
-def get_spot(latlong, value):
-    value = masterdict[latlong][1]
-    if value == flagonsolo:
+def get_spot(latlong):
+    indexvalue = masterdict[latlong][1]
+    if indexvalue == flagonsolo:
         pass
     else:
-        masterdict[latlong][1] = value + 1
-    return (latlong, value)
+        masterdict[latlong][1] = indexvalue + 1
+    return (indexvalue)
 # Let's peel the latest index count off, and increment by 1, unless this is the only spot at the location.
 
 
-def main():
+def main(verbose=0):
     inputfilename = args.filename
     outputfilename = inputfilename[:inputfilename.rfind(".")] + "-jitter" + inputfilename[inputfilename.rfind("."):]
     with open(inputfilename, 'r') as inputfilehandle:
@@ -76,20 +76,14 @@ def main():
             put.writerow(headers)
             for row in rows:
                 latlong = row[-1]
-                value = -700
-#				get_spot(latlong, value)
-                Bud, Schlitz = get_spot(latlong, value)
-
-#				print "Tequila" + str(value)
-#				print "Schlitz " + str(Schlitz)
-                value = Schlitz
-                if value == flagonsolo:
+                indexvalue = get_spot(latlong)
+                if indexvalue == flagonsolo:
                     latlongspaced = latlong
                     areacount = 1
-                    bearing = "N/A"
+                    bearing = -1
                 else:
                     areacount = masterdict[latlong][0]
-                    bearing = (value * 360 / areacount)
+                    bearing = (indexvalue * 360 / areacount)
                     destination = VincentyDistance(meters=100).destination(latlong, bearing)
                     latlongspaced = str(destination.latitude) + ", " + str(destination.longitude)
                 if verbose == 1:
@@ -107,8 +101,12 @@ def main():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Lat-longs to scatter")
     parser.add_argument('filename', metavar='filename', help='CSV file containing Lat-longs to scatter')
+    parser.add_argument("-v", help="turn on verbose output", action="store_true")
     args = parser.parse_args()
     if args.filename.lower().endswith('.csv'):
-        main()
+        if args.v:
+            main(verbose=1)
+        else:
+            main()
     else:
         print("File must be of type CSV and end with .csv extension")
