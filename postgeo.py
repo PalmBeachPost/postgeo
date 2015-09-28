@@ -5,6 +5,7 @@ Your full address field -- "1600 Pennsylvania Ave. NW, Washington, D.C., USA" --
 """
 
 from __future__ import print_function
+import argparse
 import sys
 import csv
 import time
@@ -17,19 +18,18 @@ GoogleAPIkey = creds.access['GoogleAPIkey']
 
 geolocator = GoogleV3(api_key=GoogleAPIkey, timeout=10)
 
-
-
-
 # Let's set up a buffer, in case we're running with a sorted list that has overlapping points.
-lastfulladdy = "1600 Pennsylvania Ave. NW, Washington, D.C. 20500"
-lastlat = "-77.036482"
-lastlong = "38.897667"
-lastaccuracy = "Rooftop"
-lastlatlong = "-77.036482, 38.897667"
 
-try:
-    inputfilename = sys.argv[1]
-    outputfilename = inputfilename[:inputfilename.rfind(".")] + "-geo" +inputfilename[inputfilename.rfind("."):]
+
+def main():
+    lastfulladdy = "1600 Pennsylvania Ave. NW, Washington, D.C. 20500"
+    lastlat = "-77.036482"
+    lastlong = "38.897667"
+    lastaccuracy = "Rooftop"
+    lastlatlong = "-77.036482, 38.897667"
+    inputfilename = args.filename
+
+    outputfilename = inputfilename[:inputfilename.rfind(".")] + "-geo" + inputfilename[inputfilename.rfind("."):]
     with open(outputfilename, 'w') as outputfile:
         put = csv.writer(outputfile)
         with open(inputfilename, 'r') as inputfilehandle:
@@ -71,6 +71,13 @@ try:
                         time.sleep(1)
                     except AttributeError:
                         print("Something went wrong on " + fulladdy)
-except IndexError:
-    print('Run this script with the CSV filename you want to geocode, like "postgeo.py mydata.csv"')
-    print('Geocodable location data must be in the last field.')
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Address file to geocode")
+    parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
+    args = parser.parse_args()
+    if args.filename.lower().endswith('.csv'):
+        print(args.filename)
+        main()
+    else:
+        print("File must be of type CSV and end with .csv extension")
