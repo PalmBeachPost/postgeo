@@ -66,8 +66,8 @@ def main(verbose=0):
 ## we're processing, so we know where to jigger it.
 ## flagonsolo gives us a value that says, "Only one point at this latlong. Don't mess with it."
 
-    with open(outputfilename, 'wb') as outputfile:
-        put = csv.writer(outputfile)
+    with open(outputfilename, 'w') as outputfile:
+        put = csv.writer(outputfile, lineterminator='\n')
         with open(inputfilename, 'r') as inputfilehandle:
             rows = csv.reader(inputfilehandle)
             headers = next(rows)
