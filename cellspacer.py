@@ -12,6 +12,7 @@ This may use a lot of memory on large datasets, so you might want it to work off
 from __future__ import print_function
 import argparse
 import csv
+import os
 import sys
 
 from geopy.distance import VincentyDistance
@@ -66,6 +67,15 @@ def main(verbose=0):
 ## we're processing, so we know where to jigger it.
 ## flagonsolo gives us a value that says, "Only one point at this latlong. Don't mess with it."
 
+    if os.path.isfile(outputfilename):
+        message = "File {} exists, proceeding will overwrite(y or n)? "
+        proceed_prompt = get_input(message.format(outputfilename))
+        if proceed_prompt.lower() == 'y':
+            pass
+        else:
+            print('Aborting . . .')
+            exit()
+
     with open(outputfilename, 'w') as outputfile:
         put = csv.writer(outputfile, lineterminator='\n')
         with open(inputfilename, 'r') as inputfilehandle:
@@ -87,7 +97,7 @@ def main(verbose=0):
                     destination = VincentyDistance(meters=100).destination(latlong, bearing)
                     latlongspaced = str(destination.latitude) + ", " + str(destination.longitude)
                 if verbose == 1:
-                    print("Latlong:" + "\t" + latlong + "\t" + "Area count:" + "\t" + str(areacount) + "\t" + "Index count:" + "\t" + str(value) + "\t" + "Spaced:" + "\t" + latlongspaced + "\t" + "Bearing " + "\t" + str(bearing))
+                    print("Latlong:" + "\t" + latlong + "\t" + "Area count:" + "\t" + str(areacount) + "\t" + "Index count:" + "\t" + str(indexvalue) + "\t" + "Spaced:" + "\t" + latlongspaced + "\t" + "Bearing " + "\t" + str(bearing))
                 row.append(str(areacount))
                 row.append(latlongspaced)
                 put.writerow(row)
@@ -103,6 +113,9 @@ if __name__ == '__main__':
     parser.add_argument('filename', metavar='filename', help='CSV file containing Lat-longs to scatter')
     parser.add_argument("-v", help="turn on verbose output", action="store_true")
     args = parser.parse_args()
+    get_input = input
+    if sys.version_info[:2] <= (2, 7):
+        get_input = raw_input
     if args.filename.lower().endswith('.csv'):
         if args.v:
             main(verbose=1)
