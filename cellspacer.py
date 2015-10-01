@@ -20,8 +20,8 @@ from geopy.distance import VincentyDistance
 masterdict = {}
 flagonsolo = 987654321
 
-# verbose = 1				## Comment this line out if you don't want feedback.
-
+output_string = "Latlong: {:20} Area count: {} Index count: {:>9} Spaced: {:>} Bearing {}"
+processed_string = "Processed {} rows at {} locations."
 
 def set_spot(latlong):
     if latlong in masterdict.keys():
@@ -97,7 +97,7 @@ def main(verbose=0):
                     destination = VincentyDistance(meters=100).destination(latlong, bearing)
                     latlongspaced = str(destination.latitude) + ", " + str(destination.longitude)
                 if verbose == 1:
-                    print("Latlong:" + "\t" + latlong + "\t" + "Area count:" + "\t" + str(areacount) + "\t" + "Index count:" + "\t" + str(indexvalue) + "\t" + "Spaced:" + "\t" + latlongspaced + "\t" + "Bearing " + "\t" + str(bearing))
+                    print(output_string.format(latlong, areacount, indexvalue, latlongspaced, bearing))
                 row.append(str(areacount))
                 row.append(latlongspaced)
                 put.writerow(row)
@@ -105,8 +105,7 @@ def main(verbose=0):
         linecount = 0
         for key in masterdict:
             linecount = linecount + masterdict[key][0]
-        print("Processed " + str(linecount) + " rows at " + str(len(masterdict)) + " locations.")
-
+        print(processed_string.format(linecount, len(masterdict)))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Lat-longs to scatter")
