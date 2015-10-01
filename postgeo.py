@@ -8,6 +8,7 @@ from __future__ import print_function
 import argparse
 import sys
 import csv
+import os
 import time
 
 from geopy.geocoders import GoogleV3
@@ -30,6 +31,16 @@ def main():
     inputfilename = args.filename
 
     outputfilename = inputfilename[:inputfilename.rfind(".")] + "-geo" + inputfilename[inputfilename.rfind("."):]
+
+    if os.path.isfile(outputfilename):
+        message = "File {} exists, proceeding will overwrite(y or n)? "
+        proceed_prompt = get_input(message.format(outputfilename))
+        if proceed_prompt.lower() == 'y':
+            pass
+        else:
+            print('Aborting . . .')
+            exit()
+
     with open(outputfilename, 'w') as outputfile:
         put = csv.writer(outputfile)
         with open(inputfilename, 'r') as inputfilehandle:
@@ -76,6 +87,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Address file to geocode")
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
     args = parser.parse_args()
+    get_input = input
+
+    if sys.version_info[:2] <= (2, 7):
+        get_input = raw_input
+
     if args.filename.lower().endswith('.csv'):
         print(args.filename)
         main()
