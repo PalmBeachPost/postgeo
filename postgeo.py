@@ -79,6 +79,7 @@ def main():
                         lastlat = mylat
                         lastlong = mylong
                         lastaccuracy = myaccuracy
+                        lastlatlong = mylatlong
                         time.sleep(1)
                     except AttributeError:
                         print("Something went wrong on " + fulladdy)
