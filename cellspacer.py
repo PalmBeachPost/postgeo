@@ -6,7 +6,7 @@ other lines are at that exactly named pair. If so, it scatters them around in a 
 So if other points are adjacent or identical but differently named (-80.123 vs. -80.1230), this won't help
 much. It works for what it is, and it's not meant to do more.
 
-Scattering distance right now is hard-coded (see "meters=100" around line 85).
+Scattering distance can be specified on the command-line using the -m flag).
 
 This may use a lot of memory on large datasets, so you might want it to work off a database. I didn't.
 """
