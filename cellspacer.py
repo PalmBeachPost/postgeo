@@ -30,7 +30,7 @@ def set_spot(latlong):
     if latlong in masterdict.keys():
         masterdict[latlong][0] += 1
     else:
-        masterdict[latlong] = [1,-1]
+        masterdict[latlong] = [1, -1]
 
 # So if we have a value, we know this spot already and we should add to the count.
 # If we don't have a value, we need to create one, set to the 1.
@@ -46,7 +46,7 @@ def get_spot(latlong):
 # Let's peel the latest index count off, and increment by 1, unless this is the only spot at the location.
 
 
-def main(verbose=0):
+def main(spacing, verbose=0):
     inputfilename = args.filename
     outputfilename = inputfilename[:inputfilename.rfind(".")] + "-jitter" + inputfilename[inputfilename.rfind("."):]
     with open(inputfilename, 'r') as inputfilehandle:
@@ -98,7 +98,7 @@ def main(verbose=0):
                 else:
                     areacount = masterdict[latlong][0]
                     bearing = (indexvalue * 360 / areacount)
-                    destination = VincentyDistance(meters=100).destination(latlong, bearing)
+                    destination = VincentyDistance(meters=spacing).destination(latlong, bearing)
                     latlongspaced = str(destination.latitude) + ", " + str(destination.longitude)
                 if verbose == 1:
                     print(output_string.format(latlong, areacount, indexvalue, latlongspaced, bearing))
@@ -116,14 +116,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Lat-longs to scatter")
     parser.add_argument('filename', metavar='filename', help='CSV file containing Lat-longs to scatter')
     parser.add_argument("-v", help="turn on verbose output", action="store_true")
+    parser.add_argument("-m", help="set distance in meters for spacing", default=100, type=int)
     args = parser.parse_args()
     get_input = input
     if sys.version_info[:2] <= (2, 7):
         get_input = raw_input
     if args.filename.lower().endswith('.csv'):
         if args.v:
-            main(verbose=1)
+            main(verbose=1, spacing=args.m)
         else:
-            main()
+            main(spacing=args.m)
     else:
         print("File must be of type CSV and end with .csv extension")
