@@ -93,7 +93,11 @@ def main():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Address file to geocode")
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
-    args = parser.parse_args()
+    try:
+        args = parser.parse_args()
+    except:
+        parser.print_help()
+        sys.exit(1)
     get_input = input
 
     if sys.version_info[:2] <= (2, 7):
