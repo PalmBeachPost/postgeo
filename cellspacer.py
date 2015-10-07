@@ -16,7 +16,6 @@ import argparse
 import csv
 import os
 import sys
-import traceback
 
 from geopy.distance import VincentyDistance
 
