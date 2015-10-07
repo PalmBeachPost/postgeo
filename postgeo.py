@@ -5,10 +5,11 @@ Your full address field -- "1600 Pennsylvania Ave. NW, Washington, D.C., USA" --
 """
 
 from __future__ import print_function
+
 import argparse
-import sys
 import csv
 import os
+import sys
 import time
 
 from geopy.geocoders import GoogleV3
@@ -41,9 +42,10 @@ def main():
             print('Aborting . . .')
             exit()
 
-    with open(outputfilename, 'w') as outputfile:
-        put = csv.writer(outputfile, lineterminator='\n')
-        with open(inputfilename, 'r') as inputfilehandle:
+    with open(outputfilename, 'wb') as outputfile:
+#       put = csv.writer(outputfile, lineterminator='\n')
+        put = csv.writer(outputfile)
+        with open(inputfilename, 'rU') as inputfilehandle:
             rows = csv.reader(inputfilehandle)
             headers = next(rows)
             headers.append("lat")
@@ -87,7 +89,13 @@ def main():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Address file to geocode")
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
-    args = parser.parse_args()
+
+    try:
+        args = parser.parse_args()
+    except:
+        parser.print_help()
+        sys.exit(1)
+
     get_input = input
 
     if sys.version_info[:2] <= (2, 7):
