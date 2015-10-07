@@ -5,11 +5,10 @@ Your full address field -- "1600 Pennsylvania Ave. NW, Washington, D.C., USA" --
 """
 
 from __future__ import print_function
-
 import argparse
+import sys
 import csv
 import os
-import sys
 import time
 
 from geopy.geocoders import GoogleV3
@@ -43,7 +42,7 @@ def main():
             exit()
 
     with open(outputfilename, 'wb') as outputfile:
-#       put = csv.writer(outputfile, lineterminator='\n')
+#        put = csv.writer(outputfile, lineterminator='\n')
         put = csv.writer(outputfile)
         with open(inputfilename, 'rU') as inputfilehandle:
             rows = csv.reader(inputfilehandle)
@@ -53,9 +52,9 @@ def main():
             headers.append("accuracy")
             headers.append("latlong")
             put.writerow(headers)
-#			print headers
+#            print headers
             for row in rows:
-#				print row
+#                print(row)
                 fulladdy = row[-1]
                 if fulladdy == lastfulladdy:
                     print("Repeated address found for " + fulladdy)
@@ -82,20 +81,19 @@ def main():
                         lastlong = mylong
                         lastaccuracy = myaccuracy
                         lastlatlong = mylatlong
-                        time.sleep(1)
+                        time.sleep(1)       # Necessary to avoid getting shut out
                     except AttributeError:
-                        print("Something went wrong on " + fulladdy)
+                        if len(fulladdy)>0:
+                            print("Dropping row: Something went wrong on " + fulladdy)
+                        else:
+                            print("Dropping row: No address listed in this row: " + str(row))
+                    except geopy.exc.GeocoderTimedOut:
+                        print("Geocoder service timed out on this row: " + str(row))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Address file to geocode")
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
-
-    try:
-        args = parser.parse_args()
-    except:
-        parser.print_help()
-        sys.exit(1)
-
+    args = parser.parse_args()
     get_input = input
 
     if sys.version_info[:2] <= (2, 7):
