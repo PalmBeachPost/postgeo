@@ -12,6 +12,7 @@ import os
 import time
 
 from geopy.geocoders import GoogleV3
+from geopy.exc import GeocoderTimedOut
 
 import creds
 
@@ -29,6 +30,7 @@ def main():
     lastaccuracy = "Rooftop"
     lastlatlong = "-77.036482, 38.897667"
     inputfilename = args.filename
+    buffersize = 1
 
     outputfilename = inputfilename[:inputfilename.rfind(".")] + "-geo" + inputfilename[inputfilename.rfind("."):]
 
@@ -41,7 +43,7 @@ def main():
             print('Aborting . . .')
             exit()
 
-    with open(outputfilename, 'wb') as outputfile:
+    with open(outputfilename, 'wb', buffersize) as outputfile:
 #        put = csv.writer(outputfile, lineterminator='\n')
         put = csv.writer(outputfile)
         with open(inputfilename, 'rU') as inputfilehandle:
@@ -63,6 +65,8 @@ def main():
                     row.append(lastaccuracy)
                     row.append(lastlatlong)
                     put.writerow(row)
+                    outputfile.flush()
+                    os.fsync()
                 else:
                     location = geolocator.geocode(fulladdy)
                     try:
@@ -87,7 +91,7 @@ def main():
                             print("Dropping row: Something went wrong on " + fulladdy)
                         else:
                             print("Dropping row: No address listed in this row: " + str(row))
-                    except geopy.exc.GeocoderTimedOut:
+                    except GeocoderTimedOut:
                         print("Geocoder service timed out on this row: " + str(row))
 
 if __name__ == '__main__':
