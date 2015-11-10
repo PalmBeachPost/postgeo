@@ -112,12 +112,16 @@ def main(spacing, verbose=0):
         print(processed_string.format(linecount, len(masterdict)))
 
 if __name__ == '__main__':
-    # TODO: add flag for meters for spacing.
     parser = argparse.ArgumentParser(description="Lat-longs to scatter")
     parser.add_argument('filename', metavar='filename', help='CSV file containing Lat-longs to scatter')
     parser.add_argument("-v", help="turn on verbose output", action="store_true")
     parser.add_argument("-m", help="set distance in meters for spacing", default=100, type=int)
-    args = parser.parse_args()
+
+    try:
+        args = parser.parse_args()
+    except:
+        parser.print_help()
+        sys.exit(1)
     get_input = input
     if sys.version_info[:2] <= (2, 7):
         get_input = raw_input
