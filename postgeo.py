@@ -31,6 +31,10 @@ def main():
     lastlatlong = "-77.036482, 38.897667"
     inputfilename = args.filename
     buffersize = 1
+    totalrows=0
+    rowsprocessed=0
+    lastpercentageprocessed=0
+    starttime=time.clock()
 
     outputfilename = inputfilename[:inputfilename.rfind(".")] + "-geo" + inputfilename[inputfilename.rfind("."):]
 
@@ -42,6 +46,12 @@ def main():
         else:
             print('Aborting . . .')
             exit()
+            
+    with open(inputfilename, 'rU') as inputfilehandle:
+            rows = csv.reader(inputfilehandle)
+            for row in rows:
+                totalrows += 1
+            print(str(totalrows) + " rows to be processed.")
 
     with open(outputfilename, 'wb', buffersize) as outputfile:
 #        put = csv.writer(outputfile, lineterminator='\n')
@@ -65,6 +75,8 @@ def main():
                     row.append(lastaccuracy)
                     row.append(lastlatlong)
                     put.writerow(row)
+                    rowsprocessed += 1
+                    
                     outputfile.flush()
 ##                    os.fsync()        # Disabled. Error after ~20 successes: fsync() takes exactly one argument (0 given)  
                                         # Force writes after each line. Should be no performance hit because geocoding
@@ -80,7 +92,15 @@ def main():
                         row.append(mylong)
                         row.append(myaccuracy)
                         row.append(mylatlong)
+                        rowsprocessed += 1
+                        percentageprocessed = int(100*rowsprocessed/totalrows)
+                        if percentageprocessed > lastpercentageprocessed:
+                            lastpercentageprocessed = percentageprocessed
+                            endtime=time.clock()
+                            print(str(percentageprocessed) + "% processed in " + str(int(endtime-starttime)) + " seconds. ETA: " + str(int((rowsprocessed/(endtime-starttime))*(totalrows-rowsprocessed))) + " seconds.")
+                            
                         put.writerow(row)
+                        outputfile.flush()
                         print("Found: " + fulladdy)
                         lastfulladdy = fulladdy
                         lastlat = mylat
