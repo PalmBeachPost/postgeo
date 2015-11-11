@@ -66,7 +66,8 @@ def main():
                     row.append(lastlatlong)
                     put.writerow(row)
                     outputfile.flush()
-                    os.fsync()          # Force writes after each line. Should be no performance hit because geocoding
+##                    os.fsync()        # Disabled. Error after ~20 successes: fsync() takes exactly one argument (0 given)  
+                                        # Force writes after each line. Should be no performance hit because geocoding
                                         # is so slow.
                 else:
                     location = geolocator.geocode(fulladdy)
