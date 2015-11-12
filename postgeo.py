@@ -22,6 +22,10 @@ geolocator = GoogleV3(api_key=GoogleAPIkey, timeout=10)
 
 # Let's set up a buffer, in case we're running with a sorted list that has overlapping points.
 
+def timedisplay(timediff):
+    m, s = divmod(timediff, 60)
+    h, m = divmod(m, 60)
+    return("%d:%02d:%02d" % (h, m, s))
 
 def main():
     lastfulladdy = "1600 Pennsylvania Ave. NW, Washington, D.C. 20500"
@@ -97,7 +101,8 @@ def main():
                         if percentageprocessed > lastpercentageprocessed:
                             lastpercentageprocessed = percentageprocessed
                             endtime=time.clock()
-                            print(str(percentageprocessed) + "% processed in " + str(int(endtime-starttime)) + " seconds. ETA: " + str(int((rowsprocessed/(endtime-starttime))*(totalrows-rowsprocessed))) + " seconds.")
+                            timediff=endtime-starttime
+                            print(str(percentageprocessed) + "% processed in " + timedisplay(timediff) + ". ETA: " + timedisplay((rowsprocessed/timediff)*(totalrows-rowsprocessed)) + ".")
                             
                         put.writerow(row)
                         outputfile.flush()
