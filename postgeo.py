@@ -101,8 +101,8 @@ def main():
                         if percentageprocessed > lastpercentageprocessed:
                             lastpercentageprocessed = percentageprocessed
                             endtime=time.clock()
-                            timediff=endtime-starttime
-                            print(str(percentageprocessed) + "% processed in " + timedisplay(timediff) + ". ETA: " + timedisplay((rowsprocessed/timediff)*(totalrows-rowsprocessed)) + ".")
+                            timediff = (endtime-starttime)
+                            print(str(percentageprocessed) + "% processed in " + timedisplay(timediff) + ". ETA: " + timedisplay((timediff/rowsprocessed)*(totalrows-rowsprocessed)) + ".")
                             
                         put.writerow(row)
                         outputfile.flush()
