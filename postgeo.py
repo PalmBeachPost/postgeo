@@ -116,10 +116,13 @@ def main():
                     except AttributeError:
                         if len(fulladdy)>0:
                             print("Dropping row: Something went wrong on " + fulladdy)
+                            rowsprocessed += 1
                         else:
                             print("Dropping row: No address listed in this row: " + str(row))
+                            rowsprocessed += 1
                     except GeocoderTimedOut:
                         print("Geocoder service timed out on this row: " + str(row))
+                        rowsprocessed += 1
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Address file to geocode")
