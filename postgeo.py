@@ -22,6 +22,11 @@ except KeyError:
     print("You need to configure your Google geocoding API key in creds.py. Instructions are there.")
     print("It's not as scary as it sounds, if you've never done this before.")
     sys.exit()
+if GoogleAPIkey == "GetYourKeyUsingTheDirectionsAbove":
+    print("You need to configure your Google geocoding API key in creds.py. Instructions are there.")
+    print("It's not as scary as it sounds, if you've never done this before.")
+    sys.exit()
+    
     
 geocachepath = creds.setup['geocachepath']
     
