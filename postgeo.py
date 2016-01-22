@@ -27,12 +27,11 @@ def timedisplay(timediff):
     h, m = divmod(m, 60)
     return("%d:%02d:%02d" % (h, m, s))
 
-def main():
-    lastfulladdy = "1600 Pennsylvania Ave. NW, Washington, D.C. 20500"
-    lastlat = "-77.036482"
-    lastlong = "38.897667"
-    lastaccuracy = "Rooftop"
-    lastlatlong = "-77.036482, 38.897667"
+def main(geocacheflag):
+    ## Start building caching as we go along.
+    ## Format: Full address as key, value as a tuple of lat, long, accuracy, lat-long
+    geocache = { "1600 Pennsylvania Ave. NW, Washington, D.C. 20500":
+        ("-77.036482", "38.897667", "Rooftop", "-77.036482, 38.897667") }
     inputfilename = args.filename
     buffersize = 1
     totalrows=0
@@ -50,7 +49,21 @@ def main():
         else:
             print('Aborting . . .')
             exit()
+
+## Read from geocache.csv file, if selected as option at command line.            
+    if geocacheflag == 1:
+        if os.path.isfile('geocache.csv'):
+            print("Using geocache.csv file to speed up results.")
+            with open('geocache.csv', 'rU') as cachefilehandle:
+                rows = csv.reader(cachefilehandle)
+                rows.next()        # Skip header row
+                for row in rows:
+                    if row[0] not in geocache:          # check for repeats of fulladdy as key
+                        geocache[row[0]] = (row[1], row[2], row[3], row[4])
+                        # Geocache should be fully set up now.
+
             
+## Next, we open the source data CSV entirely to get a row count, then close it.
     with open(inputfilename, 'rU') as inputfilehandle:
             rows = csv.reader(inputfilehandle)
             for row in rows:
@@ -71,13 +84,14 @@ def main():
 #            print headers
             for row in rows:
 #                print(row)
-                fulladdy = row[-1]
-                if fulladdy == lastfulladdy:
-                    print("Repeated address found for " + fulladdy)
-                    row.append(lastlat)
-                    row.append(lastlong)
-                    row.append(lastaccuracy)
-                    row.append(lastlatlong)
+                fulladdy = row[-1]      # Last column of the file
+                if fulladdy in geocache:
+                    print("\tFound in cache: " + fulladdy)
+                    mylat, mylong, myaccuracy, mylatlong = geocache[fulladdy]
+                    row.append(mylat)
+                    row.append(mylong)
+                    row.append(myaccuracy)
+                    row.append(mylatlong)
                     put.writerow(row)
                     rowsprocessed += 1
                     
@@ -96,6 +110,7 @@ def main():
                         row.append(mylong)
                         row.append(myaccuracy)
                         row.append(mylatlong)
+                        geocache[fulladdy] = (mylat, mylong, myaccuracy, mylatlong)
                         rowsprocessed += 1
                         percentageprocessed = int(100*rowsprocessed/totalrows)
                         if percentageprocessed > lastpercentageprocessed:
@@ -124,9 +139,21 @@ def main():
                         print("Geocoder service timed out on this row: " + str(row))
                         rowsprocessed += 1
 
+## Done geocoding now. Let's write geocache.csv if -c flag was selected.
+    if geocacheflag == 1:
+        with open('geocache.csv', 'wb', buffersize) as cachefilehandle:
+            put = csv.writer(cachefilehandle)
+            geocacheheader = ['fulladdy', 'lat', 'long', 'accuracy', 'latlong']
+            put.writerow(geocacheheader)
+            for fulladdy in geocache:
+                mylat, mylong, myaccuracy, mylatlong = geocache[fulladdy]
+                myrow = [ fulladdy, mylat, mylong, myaccuracy, mylatlong ]
+                put.writerow(myrow)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Address file to geocode")
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
+    parser.add_argument('-c', help='Use geocache.csv file to speed up coding and recoding.', action="store_true")
     try:
         args = parser.parse_args()
     except:
@@ -137,8 +164,17 @@ if __name__ == '__main__':
     if sys.version_info[:2] <= (2, 7):
         get_input = raw_input
 
+    if args.c:
+        geocacheflag=1
+    else:
+        geocacheflag=0
+        
     if args.filename.lower().endswith('.csv'):
-        print(args.filename)
-        main()
+        if os.path.isfile(args.filename):
+            print("Beginning to process " + args.filename)
+            main(geocacheflag)
+        else:
+            print("File " + args.filename + " not found.")
+
     else:
         print("File must be of type CSV and end with .csv extension")
