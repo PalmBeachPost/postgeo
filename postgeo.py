@@ -16,11 +16,16 @@ from geopy.exc import GeocoderTimedOut
 
 import creds
 
-GoogleAPIkey = creds.access['GoogleAPIkey']
-
+try:
+    GoogleAPIkey = creds.setup['GoogleAPIkey']
+except KeyError:
+    print("You need to configure your Google geocoding API key in creds.py. Instructions are there.")
+    print("It's not as scary as it sounds, if you've never done this before.")
+    sys.exit()
+    
+geocachepath = creds.setup['geocachepath']
+    
 geolocator = GoogleV3(api_key=GoogleAPIkey, timeout=10)
-
-# Let's set up a buffer, in case we're running with a sorted list that has overlapping points.
 
 def timedisplay(timediff):
     m, s = divmod(timediff, 60)
@@ -52,8 +57,8 @@ def main(geocacheflag):
 
 ## Read from geocache.csv file, if selected as option at command line.            
     if geocacheflag == 1:
-        if os.path.isfile('geocache.csv'):
-            print("Using geocache.csv file to speed up results.")
+        if os.path.isfile(geocachepath):
+            print("Using " + geocachepath + " file to speed up results.")
             with open('geocache.csv', 'rU') as cachefilehandle:
                 rows = csv.reader(cachefilehandle)
                 rows.next()        # Skip header row
@@ -141,7 +146,7 @@ def main(geocacheflag):
 
 ## Done geocoding now. Let's write geocache.csv if -c flag was selected.
     if geocacheflag == 1:
-        with open('geocache.csv', 'wb', buffersize) as cachefilehandle:
+        with open(geocachepath, 'wb', buffersize) as cachefilehandle:
             put = csv.writer(cachefilehandle)
             geocacheheader = ['fulladdy', 'lat', 'long', 'accuracy', 'latlong']
             put.writerow(geocacheheader)
