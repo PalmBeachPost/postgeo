@@ -27,8 +27,12 @@ if GoogleAPIkey == "GetYourKeyUsingTheDirectionsAbove":
     print("It's not as scary as it sounds, if you've never done this before.")
     sys.exit()
     
-    
-geocachepath = creds.setup['geocachepath']
+try:
+    geocachepath = creds.setup['geocachepath']
+except KeyError:
+    print("You need to figure a setup['geocachepath'] within creds.py to meet the new file format.")
+    print("Check the sample on Github.com/PalmBeachPost/postgeo to figure out how to update your version.")
+    sys.exit()
     
 geolocator = GoogleV3(api_key=GoogleAPIkey, timeout=10)
 
@@ -110,44 +114,48 @@ def main(geocacheflag):
                                         # Force writes after each line. Should be no performance hit because geocoding
                                         # is so slow.
                 else:
-                    location = geolocator.geocode(fulladdy)
-                    try:
-                        mylatlong = str(location.latitude) + ", " + str(location.longitude)
-                        mylat = str(location.latitude)
-                        mylong = str(location.longitude)
-                        myaccuracy = location.raw["geometry"]["location_type"]
-                        row.append(mylat)
-                        row.append(mylong)
-                        row.append(myaccuracy)
-                        row.append(mylatlong)
-                        geocache[fulladdy] = (mylat, mylong, myaccuracy, mylatlong)
-                        rowsprocessed += 1
-                        percentageprocessed = int(100*rowsprocessed/totalrows)
-                        if percentageprocessed > lastpercentageprocessed:
-                            lastpercentageprocessed = percentageprocessed
-                            endtime=time.clock()
-                            timediff = (endtime-starttime)
-                            print(str(percentageprocessed) + "% processed in " + timedisplay(timediff) + ". ETA: " + timedisplay((timediff/rowsprocessed)*(totalrows-rowsprocessed)) + ".")
-                            
-                        put.writerow(row)
-                        outputfile.flush()
-                        print("Found: " + fulladdy)
-                        lastfulladdy = fulladdy
-                        lastlat = mylat
-                        lastlong = mylong
-                        lastaccuracy = myaccuracy
-                        lastlatlong = mylatlong
-                        time.sleep(1)       # Necessary to avoid getting shut out
-                    except AttributeError:
-                        if len(fulladdy)>0:
-                            print("Dropping row: Something went wrong on " + fulladdy)
+                    if len(fulladdy) >0:
+                        location = geolocator.geocode(fulladdy)
+                        try:
+                            mylatlong = str(location.latitude) + ", " + str(location.longitude)
+                            mylat = str(location.latitude)
+                            mylong = str(location.longitude)
+                            myaccuracy = location.raw["geometry"]["location_type"]
+                            row.append(mylat)
+                            row.append(mylong)
+                            row.append(myaccuracy)
+                            row.append(mylatlong)
+                            geocache[fulladdy] = (mylat, mylong, myaccuracy, mylatlong)
                             rowsprocessed += 1
-                        else:
+                            percentageprocessed = int(100*rowsprocessed/totalrows)
+                            if percentageprocessed > lastpercentageprocessed:
+                                lastpercentageprocessed = percentageprocessed
+                                endtime=time.clock()
+                                timediff = (endtime-starttime)
+                                print(str(percentageprocessed) + "% processed in " + timedisplay(timediff) + ". ETA: " + timedisplay((timediff/rowsprocessed)*(totalrows-rowsprocessed)) + ".")
+                                
+                            put.writerow(row)
+                            outputfile.flush()
+                            print("Found: " + fulladdy)
+                            lastfulladdy = fulladdy
+                            lastlat = mylat
+                            lastlong = mylong
+                            lastaccuracy = myaccuracy
+                            lastlatlong = mylatlong
+                            time.sleep(1)       # Necessary to avoid getting shut out
+                        except AttributeError:
+                            if len(fulladdy)>0:
+                                print("Dropping row: Something went wrong on " + fulladdy)
+                                rowsprocessed += 1
+                            else:
+                                print("Dropping row: No address listed in this row: " + str(row))
+                                rowsprocessed += 1
+                        except GeocoderTimedOut:
+                            print("Geocoder service timed out on this row: " + str(row))
+                            rowsprocessed += 1
+                    else:           # If fulladdy was blank
                             print("Dropping row: No address listed in this row: " + str(row))
                             rowsprocessed += 1
-                    except GeocoderTimedOut:
-                        print("Geocoder service timed out on this row: " + str(row))
-                        rowsprocessed += 1
 
 ## Done geocoding now. Let's write geocache.csv if -c flag was selected.
     if geocacheflag == 1:
