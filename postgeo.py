@@ -169,7 +169,7 @@ def main(geocacheflag):
                 put.writerow(myrow)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Address file to geocode")
+    parser = argparse.ArgumentParser(description="postgeo.py is a command-line geocoder tool.")
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
     parser.add_argument('-c', help='Use geocache.csv file to speed up coding and recoding.', action="store_true")
     try:
