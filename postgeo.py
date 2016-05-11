@@ -80,14 +80,15 @@ def main(geocacheflag):
                     myrow = [fulladdy, mylat, mylong, myaccuracy, mylatlong]
                     cacheput.writerow(myrow)
 
-        else:
+        else:       # If we have that geocachepath file
             print("Using " + geocachepath + " file to speed up results.")
             with open(geocachepath, 'rU') as cachefilehandle:
                 rows = csv.reader(cachefilehandle)
                 rows.next()        # Skip header row
                 for row in rows:
-                    if row[0] not in geocache:          # check for repeats of fulladdy as key
-                        geocache[row[0]] = (row[1], row[2], row[3], row[4])
+                    if len(row) > 4:        # If we have a blank row, skip it.
+                        if row[0] not in geocache:          # check for repeats of fulladdy as key
+                            geocache[row[0]] = (row[1], row[2], row[3], row[4])
                         # Geocache should be fully set up now.
 # Cache file should now be closed. Let's open it again to append to it.
         cachefilehandle = open(geocachepath, "a")       # Open to append
@@ -185,7 +186,8 @@ def main(geocacheflag):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="postgeo.py is a command-line geocoder tool.")
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
-    parser.add_argument('-c', help='Use geocache.csv file to speed up coding and recoding.', action="store_true")
+    parser.add_argument('-c', help='Use geocache.csv file to speed up coding and recoding. Now the default.', action="store_true")
+    parser.add_argument('-n', help='Do NOT use geocache file Use geocache.csv file to speed up geocoding and recoding.', action="store_true")
     try:
         args = parser.parse_args()
     except:
@@ -196,11 +198,16 @@ if __name__ == '__main__':
     if sys.version_info[:2] <= (2, 7):
         get_input = raw_input
 
-    if args.c:
-        geocacheflag = 1
+    if args.n:
+        geocacheflag = 0
     else:
-        geocacheflag = 0        # We should probably change to default to geocache. Thus, if args.n for -no cache -- geocacheflag = 0 ...
-
+        geocacheflag = 1
+    
+    if args.c:      # If we get both options
+        geocacheflag = 1
+    if geocacheflag == 1:
+        print("Speeding up results with cached file " + geocachepath)
+        
     if args.filename.lower().endswith('.csv'):
         if os.path.isfile(args.filename):
             print("Beginning to process " + args.filename)
