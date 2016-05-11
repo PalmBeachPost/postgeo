@@ -7,5 +7,5 @@
 
 setup = {
     "GoogleAPIkey":"AIzaSyCPp3F7m_6T5rfovxYoICLaBONSICe7hBo",
-    "geocachepath":"c:\data\postgeo\geocache.csv"
+    "geocachepath":"geocache.csv"
     }
