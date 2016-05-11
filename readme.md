@@ -8,6 +8,8 @@ They run with Python. You'll need to install one helper file ("pip install geopy
 You'll want to edit creds.py and add your Google API key. Don't have one? Get it here:
 https://console.developers.google.com/project/_/apiui/credential
 
+In that creds.py file you'll also need to have a filename for a CSV that will be used to cache results. The default should work fine.
+
 
 Command-line geocoding
 ----------------------
@@ -22,8 +24,7 @@ Simply run it like this: postgeo.py myfile.csv.
 
 It'll spit back a myfile-geo.csv.
 
-To reduce overhead, sort your CSV by the last column, the to-be-geocoded column. It'll look up those addresses just one time, and then drop the correct data in place for subsequent rows that have the same location listed.
-
+Use postgeo.py with the -n flag if you do not want to store your cached results for later reuse. This is no longer the default, as you may wind up recoding substantially the same addresses a bunch of times.
 
 
 Command-line jittering or clustering
@@ -36,4 +37,6 @@ This runs instantaneously on a dataset of 1,000 rows, but it may also be memory 
 In general
 ----------
 
-Pull requests are welcomed, as are suggestions. All credit goes to Palm Beach Newspapers, owner of The Palm Beach Post and Palm Beach Daily News, a Cox Media Group company.
+Pull requests are welcomed, as are suggestions.
+
+This began as a project for Palm Beach Newspapers, owner of The Palm Beach Post and Palm Beach Daily News, a Cox Media Group company. Micheal Beatty, @amikiri , stepped in from the blue and offered some wonderful improvements.
