@@ -6,6 +6,6 @@
 ## "c:\data\postgeo\geocache.csv" and any projects using this will build the cache.
 
 setup = {
-    "GoogleAPIkey":"AIzaSyCPp3F7m_6T5rfovxYoICLaBONSICe7hBo",
+    "GoogleAPIkey":"GetYourKeyUsingTheDirectionsAbove",
     "geocachepath":"geocache.csv"
     }
