@@ -91,7 +91,7 @@ def main(geocacheflag):
                             geocache[row[0]] = (row[1], row[2], row[3], row[4])
                         # Geocache should be fully set up now.
 # Cache file should now be closed. Let's open it again to append to it.
-        cachefilehandle = open(geocachepath, "a")       # Open to append
+        cachefilehandle = open(geocachepath, "ab")       # Open to append
         cacheput = csv.writer(cachefilehandle)
 #
 # Note we still have the file handle open for our cache. This is a good thing, but we do need to remember to write and close.
