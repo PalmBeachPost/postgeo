@@ -168,12 +168,15 @@ def main(geocacheflag):
                         except AttributeError:
                             if len(fulladdy) > 0:
                                 print("Dropping row: Something went wrong on " + fulladdy)
+                                time.sleep(1)
                                 rowsprocessed += 1
                             else:
                                 print("Dropping row: No address listed in this row: " + str(row))
                                 rowsprocessed += 1
                         except GeocoderTimedOut:
                             print("Geocoder service timed out on this row: " + str(row))
+                            print("You should probably re-run this on the next pass.")
+                            time.sleep(1)
                             rowsprocessed += 1
                     else:           # If fulladdy was blank
                             print("Dropping row: No address listed in this row: " + str(row))
