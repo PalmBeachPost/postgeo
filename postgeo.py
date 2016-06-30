@@ -132,7 +132,7 @@ def main(geocacheflag):
 
                 else:
                     if len(fulladdy) > 0:
-                        location = geolocator.geocode(fulladdy)
+                        location = geolocator.geocode(fulladdy.replace("'", ""))
                         try:
                             mylatlong = str(location.latitude) + ", " + str(location.longitude)
                             mylat = str(location.latitude)
