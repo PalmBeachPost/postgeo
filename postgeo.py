@@ -35,6 +35,8 @@ except KeyError:
     sys.exit()
 
 geolocator = GoogleV3(api_key=GoogleAPIkey, timeout=10)
+global timedelay
+timedelay = 1
 
 
 def timedisplay(timediff):
@@ -162,13 +164,14 @@ def main(geocacheflag):
                             if geocacheflag == 1:
                                 cacheput.writerow([fulladdy, mylat, mylong, myaccuracy, mylatlong])
                                 cachefilehandle.flush()
+                                # os.fsync()  HEY!
 
-                            time.sleep(1)       # Necessary to avoid getting shut out
+                            time.sleep(timedelay)       # Necessary to avoid getting shut out
 
                         except AttributeError:
                             if len(fulladdy) > 0:
                                 print("Dropping row: Something went wrong on " + fulladdy)
-                                time.sleep(1)
+                                time.sleep(timedelay)
                                 rowsprocessed += 1
                             else:
                                 print("Dropping row: No address listed in this row: " + str(row))
@@ -176,7 +179,7 @@ def main(geocacheflag):
                         except GeocoderTimedOut:
                             print("Geocoder service timed out on this row: " + str(row))
                             print("You should probably re-run this on the next pass.")
-                            time.sleep(1)
+                            time.sleep(timedelay)
                             rowsprocessed += 1
                     else:           # If fulladdy was blank
                             print("Dropping row: No address listed in this row: " + str(row))
@@ -191,6 +194,7 @@ if __name__ == '__main__':
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
     parser.add_argument('-c', help='Use geocache.csv file to speed up coding and recoding. Now the default.', action="store_true")
     parser.add_argument('-n', help='Do NOT use geocache file Use geocache.csv file to speed up geocoding and recoding.', action="store_true")
+    parser.add_argument('-t', type=float, nargs=1, default=1, action="store", help='Enter a delay between queries measured in seconds, such as 1 or 0.5.')
     try:
         args = parser.parse_args()
     except:
@@ -200,7 +204,9 @@ if __name__ == '__main__':
 
     if sys.version_info[:2] <= (2, 7):
         get_input = raw_input
-
+        
+    timedelay = args.t[0]
+        
     if args.n:
         geocacheflag = 0
     else:
