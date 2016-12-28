@@ -164,8 +164,7 @@ def main(geocacheflag):
                             if geocacheflag == 1:
                                 cacheput.writerow([fulladdy, mylat, mylong, myaccuracy, mylatlong])
                                 cachefilehandle.flush()
-                                # os.fsync()  HEY!
-
+                                os.fsync()
                             time.sleep(timedelay)       # Necessary to avoid getting shut out
 
                         except AttributeError:
@@ -204,19 +203,19 @@ if __name__ == '__main__':
 
     if sys.version_info[:2] <= (2, 7):
         get_input = raw_input
-        
+
     timedelay = args.t[0]
-        
+
     if args.n:
         geocacheflag = 0
     else:
         geocacheflag = 1
-    
+
     if args.c:      # If we get both options
         geocacheflag = 1
     if geocacheflag == 1:
         print("Speeding up results with cached file " + geocachepath)
-        
+
     if args.filename.lower().endswith('.csv'):
         if os.path.isfile(args.filename):
             print("Beginning to process " + args.filename)
