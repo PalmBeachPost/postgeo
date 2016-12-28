@@ -159,7 +159,7 @@ def main(geocacheflag):
                             if geocacheflag == 1:
                                 cacheput.writerow([fulladdy, mylat, mylong, myaccuracy, mylatlong])
                                 cachefilehandle.flush()
-                                os.fsync()
+                                os.fsync(cachefilehandle)
                             time.sleep(timedelay)       # Necessary to avoid getting shut out
 
                         except AttributeError:
