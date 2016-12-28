@@ -156,11 +156,6 @@ def main(geocacheflag):
                             put.writerow(row)
                             outputfile.flush()
                             print("Found: " + fulladdy)
-                            lastfulladdy = fulladdy
-                            lastlat = mylat
-                            lastlong = mylong
-                            lastaccuracy = myaccuracy
-                            lastlatlong = mylatlong
                             if geocacheflag == 1:
                                 cacheput.writerow([fulladdy, mylat, mylong, myaccuracy, mylatlong])
                                 cachefilehandle.flush()
