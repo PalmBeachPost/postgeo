@@ -130,8 +130,8 @@ def main(geocacheflag):
                     if len(fulladdy) > 0:
                         try:
                             location = geolocator.geocode(fulladdy.replace("'", ""))
-                        except GeocoderServiceError:
-                            print("GeocoderServiceError occured. Sleeping five seconds to try again.")
+                        except: #  GeocoderServiceError
+                            print("GeocoderServiceError (or some other error) occured. Sleeping five seconds to try again.")
                             time.sleep(5)
                             location = geolocator.geocode(fulladdy.replace("'", ""))
 
