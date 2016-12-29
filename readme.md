@@ -41,7 +41,6 @@ Force a distance -- the radius of spread -- with <code>-m 100</code> for a 100-m
 Cellspacer will work where a latitude-longitude pair is in the last column. Most often, you'll be feeding it something that came out of the postgeo.py geocoder, e.g.:
 
 <code>postgeo.py mydata.csv
-
 cellspacer -m 15 mydata-geo.csv</code>
 
 
