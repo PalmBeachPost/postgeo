@@ -3,7 +3,8 @@ Geographic tools for CSV files
 
 These small command-line tools are designed to aid in geocoding files, and in jittering, or scattering, points that overlap.
 
-They run with Python. You'll need to install one helper file ("pip install geopy")
+They run with Python. You'll need to install two helper files with one command, like this:
+<code>pip install -r requirements.txt</code>
 
 You'll want to edit creds.py and add your Google API key. Don't have one? Get it here:
 https://console.developers.google.com/project/_/apiui/credential
