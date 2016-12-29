@@ -44,7 +44,10 @@ Cellspacer will work where a latitude-longitude pair is in the last column. Most
 cellspacer -m 15 mydata-geo.csv</code></pre>
 
 
-This runs instantaneously on a dataset of 1,000 rows, but it may also be memory intensive. If you have problems on a much larger data set, let us know and we can suggest and possibly test some workarounds.
+This runs instantaneously on a dataset of 1,000 rows. Single-core CPU speed will be your limiting factor. . On a 75,000-row dataset, total processing on older hardware took about a minute and a half using Python 3.6. The same data set took about half a minute using Pypy 2.7.
+
+If you have problems on a much larger data set, let us know and we can suggest and possibly test some workarounds.
+
 
 In general
 ----------
