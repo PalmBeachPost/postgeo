@@ -18,11 +18,9 @@ import creds
 
 try:
     GoogleAPIkey = creds.setup['GoogleAPIkey']
+    if GoogleAPIkey == "GetYourKeyUsingTheDirectionsAbove":
+        raise KeyError
 except KeyError:
-    print("You need to configure your Google geocoding API key in creds.py. Instructions are there.")
-    print("It's not as scary as it sounds, if you've never done this before.")
-    sys.exit()
-if GoogleAPIkey == "GetYourKeyUsingTheDirectionsAbove":
     print("You need to configure your Google geocoding API key in creds.py. Instructions are there.")
     print("It's not as scary as it sounds, if you've never done this before.")
     sys.exit()
@@ -36,7 +34,7 @@ except KeyError:
 
 geolocator = GoogleV3(api_key=GoogleAPIkey, timeout=10)
 global timedelay
-timedelay = 1
+timedelay = 0
 
 
 def timedisplay(timediff):
@@ -57,6 +55,7 @@ def main(geocacheflag):
     lastpercentageprocessed = 0
     starttime = time.clock()
 
+    # Use the base of the original filename, append "-geo", tack on the same extension as the original.
     outputfilename = inputfilename[:inputfilename.rfind(".")] + "-geo" + inputfilename[inputfilename.rfind("."):]
 
     if os.path.isfile(outputfilename):
@@ -70,7 +69,7 @@ def main(geocacheflag):
 
 # Read from geocache.csv file, if selected as option at command line.
     if geocacheflag == 1:
-        if not os.path.isfile(geocachepath):
+        if not os.path.isfile(geocachepath):    # If we need to begin a new cache file
             print("Using " + geocachepath + " file to speed up results.")
             with open(geocachepath, 'wb') as cachefilehandle:
                         # with open(geocachepath, 'wb', buffersize) as cachefilehandle:
@@ -111,10 +110,8 @@ def main(geocacheflag):
         with open(inputfilename, 'rU') as inputfilehandle:
             rows = csv.reader(inputfilehandle)
             headers = next(rows)
-            headers.append("lat")
-            headers.append("long")
-            headers.append("accuracy")
-            headers.append("latlong")
+            newstuff = ["lat", "long", "accuracy", "latlong"]
+            headers.extend(newstuff)
             put.writerow(headers)
             # print headers
             for row in rows:
@@ -123,14 +120,11 @@ def main(geocacheflag):
                 if fulladdy in geocache:
                     print("\tFound in cache: " + fulladdy)
                     mylat, mylong, myaccuracy, mylatlong = geocache[fulladdy]
-                    row.append(mylat)
-                    row.append(mylong)
-                    row.append(myaccuracy)
-                    row.append(mylatlong)
+                    row.extend([mylat, mylong, myaccuracy, mylatlong])
                     put.writerow(row)
                     rowsprocessed += 1
-
-                    outputfile.flush()  # Force writes after each line. Should be no performance hit because geocoding is so slow.
+                    outputfile.flush()  # Encourage write after each line. Should be no performance hit because geocoding is so slow.
+                    os.fsync(outputfile)
 
                 else:
                     if len(fulladdy) > 0:
@@ -140,11 +134,9 @@ def main(geocacheflag):
                             mylat = str(location.latitude)
                             mylong = str(location.longitude)
                             myaccuracy = location.raw["geometry"]["location_type"]
-                            row.append(mylat)
-                            row.append(mylong)
-                            row.append(myaccuracy)
-                            row.append(mylatlong)
-                            geocache[fulladdy] = (mylat, mylong, myaccuracy, mylatlong)
+                            newstuff = [mylat, mylong, myaccuracy, mylatlong]
+                            row.extend(newstuff)
+                            geocache[fulladdy] = newstuff
                             rowsprocessed += 1
                             percentageprocessed = int(100*rowsprocessed/totalrows)
                             if percentageprocessed > lastpercentageprocessed:
@@ -155,6 +147,7 @@ def main(geocacheflag):
 
                             put.writerow(row)
                             outputfile.flush()
+                            os.fsync(outputfile)
                             print("Found: " + fulladdy)
                             if geocacheflag == 1:
                                 cacheput.writerow([fulladdy, mylat, mylong, myaccuracy, mylatlong])
@@ -188,7 +181,7 @@ if __name__ == '__main__':
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
     parser.add_argument('-c', help='Use geocache.csv file to speed up coding and recoding. Now the default.', action="store_true")
     parser.add_argument('-n', help='Do NOT use geocache file Use geocache.csv file to speed up geocoding and recoding.', action="store_true")
-    parser.add_argument('-t', type=float, nargs=1, default=1, action="store", help='Enter a delay between queries measured in seconds, such as 1 or 0.5.')
+    parser.add_argument('-t', type=float, nargs=1, default=0, action="store", help='Enter a delay between queries measured in seconds, such as 1 or 0.5.')
     try:
         args = parser.parse_args()
     except:
