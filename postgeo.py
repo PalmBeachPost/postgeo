@@ -43,69 +43,70 @@ def timedisplay(timediff):
     return("%d:%02d:%02d" % (h, m, s))
 
 
-def geocoderow(fulladdy)
-	if fulladdy in geocache:
-		print("\tFound in cache: " + fulladdy)
-		mylat, mylong, myaccuracy, mylatlong = geocache[fulladdy]
-		row.extend([mylat, mylong, myaccuracy, mylatlong])
-		put.writerow(row)
-		rowsprocessed += 1
-		outputfile.flush()  # Encourage write after each line. Should be no performance hit because geocoding is so slow.
-		os.fsync(outputfile)
+def geocoderow(row):
+    fulladdy = row[-1]      # Last column of the file
+    if fulladdy in geocache:
+        print("\tFound in cache: " + fulladdy)
+        mylat, mylong, myaccuracy, mylatlong = geocache[fulladdy]
+        row.extend([mylat, mylong, myaccuracy, mylatlong])
+        put.writerow(row)
+        rowsprocessed += 1
+        outputfile.flush()  # Encourage write after each line. Should be no performance hit because geocoding is so slow.
+        os.fsync(outputfile)
 
-	else:
-		if len(fulladdy) > 0:
-			try:
-				location = geolocator.geocode(fulladdy.replace("'", ""))
-			except: #  GeocoderServiceError
-				print("GeocoderServiceError (or some other error) occured. Sleeping five seconds to try again.")
-				time.sleep(5)
-				location = geolocator.geocode(fulladdy.replace("'", ""))
+    else:
+        if len(fulladdy) > 0:
+            try:
+                location = geolocator.geocode(fulladdy.replace("'", ""))
+            except: #  GeocoderServiceError
+                print("GeocoderServiceError (or some other error) occured. Sleeping five seconds to try again.")
+                time.sleep(5)
+                location = geolocator.geocode(fulladdy.replace("'", ""))
 
-			try:
-				mylatlong = str(location.latitude) + ", " + str(location.longitude)
-				mylat = str(location.latitude)
-				mylong = str(location.longitude)
-				myaccuracy = location.raw["geometry"]["location_type"]
-				newstuff = [mylat, mylong, myaccuracy, mylatlong]
-				row.extend(newstuff)
-				geocache[fulladdy] = newstuff
-				rowsprocessed += 1
-				percentageprocessed = int(100*rowsprocessed/totalrows)
-				if percentageprocessed > lastpercentageprocessed:
-					lastpercentageprocessed = percentageprocessed
-					endtime = time.clock()
-					timediff = (endtime-starttime)
-					print(str(percentageprocessed) + "% processed in " + timedisplay(timediff) + ". ETA: " + timedisplay((timediff/rowsprocessed)*(totalrows-rowsprocessed)) + ".")
+            try:
+                mylatlong = str(location.latitude) + ", " + str(location.longitude)
+                mylat = str(location.latitude)
+                mylong = str(location.longitude)
+                myaccuracy = location.raw["geometry"]["location_type"]
+                newstuff = [mylat, mylong, myaccuracy, mylatlong]
+                row.extend(newstuff)
+                geocache[fulladdy] = newstuff
+                rowsprocessed += 1
+                percentageprocessed = int(100*rowsprocessed/totalrows)
+                if percentageprocessed > lastpercentageprocessed:
+                    lastpercentageprocessed = percentageprocessed
+                    endtime = time.clock()
+                    timediff = (endtime-starttime)
+                    print(str(percentageprocessed) + "% processed in " + timedisplay(timediff) + ". ETA: " + timedisplay((timediff/rowsprocessed)*(totalrows-rowsprocessed)) + ".")
 
-				put.writerow(row)
-				outputfile.flush()
-				os.fsync(outputfile)
-				print("Found: " + fulladdy)
-				if geocacheflag == 1:
-					cacheput.writerow([fulladdy, mylat, mylong, myaccuracy, mylatlong])
-					cachefilehandle.flush()
-					os.fsync(cachefilehandle)
+                put.writerow(row)
+                outputfile.flush()
+                os.fsync(outputfile)
+                print("Found: " + fulladdy)
+                if geocacheflag == 1:
+                    cacheput.writerow([fulladdy, mylat, mylong, myaccuracy, mylatlong])
+                    cachefilehandle.flush()
+                    os.fsync(cachefilehandle)
 
-				time.sleep(timedelay)       # Necessary to avoid getting shut out
+                time.sleep(timedelay)       # Necessary to avoid getting shut out
 
-			except AttributeError:
-				if len(fulladdy) > 0:
-					print("Dropping row: Something went wrong on " + fulladdy)
-					time.sleep(timedelay)
-					rowsprocessed += 1
-				else:
-					print("Dropping row: No address listed in this row: " + str(row))
-					rowsprocessed += 1
-			except GeocoderTimedOut:
-				print("Geocoder service timed out on this row: " + str(row))
-				print("You should probably re-run this on the next pass.")
-				time.sleep(timedelay)
-				rowsprocessed += 1
-		else:           # If fulladdy was blank
-				print("Dropping row: No address listed in this row: " + str(row))
-				rowsprocessed += 1
-	return
+            except AttributeError:
+                if len(fulladdy) > 0:
+                    print("Dropping row: Something went wrong on " + fulladdy)
+                    time.sleep(timedelay)
+                    rowsprocessed += 1
+                else:
+                    print("Dropping row: No address listed in this row: " + str(row))
+                    rowsprocessed += 1
+            except GeocoderTimedOut:
+                print("Geocoder service timed out on this row: " + str(row))
+                print("You should probably re-run this on the next pass.")
+                time.sleep(timedelay)
+                rowsprocessed += 1
+        else:           # If fulladdy was blank
+                print("Dropping row: No address listed in this row: " + str(row))
+                rowsprocessed += 1
+    return
 
 
 
@@ -173,7 +174,16 @@ def main(geocacheflag):
 
     with open(outputfilename, 'wb', buffersize) as outputfile:
         put = csv.writer(outputfile)
-		global put
+        global put
+        global geocache
+        global rowsprocessed
+        global outputfile
+        global totalrows
+        global lastpercentageprocessed
+        global starttime
+        global cachefilehandle
+        global cacheput
+        
         with open(inputfilename, 'rU') as inputfilehandle:
             rows = csv.reader(inputfilehandle)
             headers = next(rows)
@@ -183,8 +193,7 @@ def main(geocacheflag):
             # print headers
             for row in rows:
                 # print(row)
-                fulladdy = row[-1]      # Last column of the file
-				geocoderow(fulladdy)
+                geocoderow(row)
 
     if geocacheflag == 1:
         cachefilehandle.flush()
