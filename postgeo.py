@@ -45,6 +45,15 @@ def timedisplay(timediff):
 
 def geocoderow(row):
     fulladdy = row[-1]      # Last column of the file
+    global put
+    global geocache
+    global rowsprocessed
+    global outputfile
+    global totalrows
+    global lastpercentageprocessed
+    global starttime
+    global cachefilehandle
+    global cacheput
     if fulladdy in geocache:
         print("\tFound in cache: " + fulladdy)
         mylat, mylong, myaccuracy, mylatlong = geocache[fulladdy]
@@ -147,10 +156,11 @@ def main(geocacheflag):
     if geocacheflag == 1:
         if not os.path.isfile(geocachepath):    # If we need to begin a new cache file
             print("Using " + geocachepath + " file to speed up results.")
-            with open(geocachepath, 'wb') as cachefilehandle:
+            with open(geocachepath, 'w') as cachefilehandle:
                         # with open(geocachepath, 'wb', buffersize) as cachefilehandle:
                 cacheput = csv.writer(cachefilehandle)
                 geocacheheader = ['fulladdy', 'lat', 'long', 'accuracy', 'latlong']
+                print(geocacheheader)
                 cacheput.writerow(geocacheheader)
                 for fulladdy in geocache:
                     mylat, mylong, myaccuracy, mylatlong = geocache[fulladdy]
@@ -161,14 +171,14 @@ def main(geocacheflag):
             print("Using " + geocachepath + " file to speed up results.")
             with open(geocachepath, 'rU') as cachefilehandle:
                 rows = csv.reader(cachefilehandle)
-                rows.next()        # Skip header row
+                next(rows)        # Skip header row
                 for row in rows:
                     if len(row) > 4:        # If we have a blank row, skip it.
                         if row[0] not in geocache:          # check for repeats of fulladdy as key
                             geocache[row[0]] = (row[1], row[2], row[3], row[4])
                         # Geocache should be fully set up now.
 # Cache file should now be closed. Let's open it again to append to it.
-        cachefilehandle = open(geocachepath, "ab")       # Open to append
+        cachefilehandle = open(geocachepath, "a")       # Open to append
         cacheput = csv.writer(cachefilehandle)
 #
 # Note we still have the file handle open for our cache. This is a good thing, but we do need to remember to write and close.
@@ -181,7 +191,7 @@ def main(geocacheflag):
                 totalrows += 1
             print(str(totalrows) + " rows to be processed.")
 
-    with open(outputfilename, 'wb', buffersize) as outputfile:
+    with open(outputfilename, 'w', buffersize) as outputfile:
         put = csv.writer(outputfile)
         
         with open(inputfilename, 'rU') as inputfilehandle:
@@ -215,7 +225,6 @@ if __name__ == '__main__':
     if sys.version_info[:2] <= (2, 7):
         get_input = raw_input
 
-    print(args.t)
     timedelay = float(args.t[0])
 
     if args.n:
