@@ -113,6 +113,15 @@ def geocoderow(row):
 def main(geocacheflag):
     # Start building caching as we go along.
     # Format: Full address as key, value as a tuple of lat, long, accuracy, lat-long
+    global put
+    global geocache
+    global rowsprocessed
+    global outputfile
+    global totalrows
+    global lastpercentageprocessed
+    global starttime
+    global cachefilehandle
+    global cacheput
     geocache = {"1600 Pennsylvania Ave. NW, Washington, D.C. 20500":
                 ("-77.036482", "38.897667", "Rooftop", "-77.036482, 38.897667")}
     inputfilename = args.filename
@@ -174,15 +183,6 @@ def main(geocacheflag):
 
     with open(outputfilename, 'wb', buffersize) as outputfile:
         put = csv.writer(outputfile)
-        global put
-        global geocache
-        global rowsprocessed
-        global outputfile
-        global totalrows
-        global lastpercentageprocessed
-        global starttime
-        global cachefilehandle
-        global cacheput
         
         with open(inputfilename, 'rU') as inputfilehandle:
             rows = csv.reader(inputfilehandle)
@@ -204,7 +204,7 @@ if __name__ == '__main__':
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
     parser.add_argument('-c', help='Use geocache.csv file to speed up coding and recoding. Now the default.', action="store_true")
     parser.add_argument('-n', help='Do NOT use geocache file Use geocache.csv file to speed up geocoding and recoding.', action="store_true")
-    parser.add_argument('-t', type=float, nargs=1, default=0, action="store", help='Enter a delay between queries measured in seconds, such as 1 or 0.5.')
+    parser.add_argument('-t', type=float, nargs=1, default=[0.0], action="store", help='Enter a delay between queries measured in seconds, such as 1 or 0.5.')
     try:
         args = parser.parse_args()
     except:
@@ -215,7 +215,8 @@ if __name__ == '__main__':
     if sys.version_info[:2] <= (2, 7):
         get_input = raw_input
 
-    timedelay = args.t[0]
+    print(args.t)
+    timedelay = float(args.t[0])
 
     if args.n:
         geocacheflag = 0
