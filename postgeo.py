@@ -187,7 +187,7 @@ if __name__ == '__main__':
     parser.add_argument('filename', metavar='filename', help='CSV file containing addresses to be geocoded')
     parser.add_argument('-c', help='Use geocache.csv file to speed up coding and recoding. Now the default.', action="store_true")
     parser.add_argument('-n', help='Do NOT use geocache file Use geocache.csv file to speed up geocoding and recoding.', action="store_true")
-    parser.add_argument('-t', type=float, nargs=1, default=0, action="store", help='Enter a delay between queries measured in seconds, such as 1 or 0.5.')
+    parser.add_argument('-t', type=float, nargs=1, default=[0.0], action="store", help='Enter a delay between queries measured in seconds, such as 1 or 0.5.')
     try:
         args = parser.parse_args()
     except:
