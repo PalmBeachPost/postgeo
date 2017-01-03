@@ -10,6 +10,7 @@ import sys
 import csv
 import os
 import time
+import concurrent.futures
 
 from geopy.geocoders import GoogleV3
 from geopy.exc import GeocoderTimedOut
@@ -201,9 +202,9 @@ def main(geocacheflag):
             headers.extend(newstuff)
             put.writerow(headers)
             # print headers
-            for row in rows:
-                # print(row)
-                geocoderow(row)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:
+                for row in rows:
+                    executor.submit(geocoderow, row)
 
     if geocacheflag == 1:
         cachefilehandle.flush()
