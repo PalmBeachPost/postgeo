@@ -202,7 +202,7 @@ def main(geocacheflag):
             headers.extend(newstuff)
             put.writerow(headers)
             # print headers
-            with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
                 for row in rows:
                     executor.submit(geocoderow, row)
 
